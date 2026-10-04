@@ -13,9 +13,11 @@
 
 - 🔍 **Búsqueda global por ciudad:** Consulta en tiempo real con control de errores (404, caída de conexión, entradas vacías).
 - 📍 **Geolocalización nativa:** Detecta automáticamente las coordenadas del usuario con `navigator.geolocation` y consulta el clima local.
-- 🌡️ **Conversor de unidades (°C / °F):** Alterna al instante entre Celsius y Fahrenheit sin rehacer peticiones de red innecesarias.
+- 📈 **Trayectoria Térmica 24 Horas (Canvas 2D Nativo):** Gráfica continua con curvas Bézier de neón cian, gradiente de relleno, temperaturas horarias y probabilidad de lluvia en tiempo real sin librerías externas.
+- 🗓️ **Pronóstico Extendido a 5 Días:** Cuadrícula telemétrica con cálculo de rangos térmicos relativos (mínimas/máximas), barras de degradado y probabilidades de precipitación.
+- 🌡️ **Conversor de unidades (°C / °F):** Alterna al instante entre Celsius y Fahrenheit reactivamente en toda la pantalla (tarjeta actual, gráfica y pronóstico a 5 días).
 - 🕒 **Historial persistente & Chips interactivos:** Guarda las últimas ciudades consultadas en `localStorage` con opción de acceso rápido y eliminación individual.
-- 🎨 **Ambientación climática dinámica:** La tarjeta y su brillo adaptan sus tonalidades y atmósfera según el clima (despejado, lluvia, nieve, nublado, tormenta).
+- 🎨 **Ambientación climática HUD:** La estación y su resplandor adaptan sus tonalidades y atmósfera según el clima (despejado, lluvia, nieve, nublado, tormenta).
 - ⌨️ **Atajos de teclado:**
   - Presiona `/` desde cualquier lugar para enfocar la barra de búsqueda inmediatamente.
   - Presiona `Escape` para limpiar el campo de búsqueda.
@@ -27,29 +29,33 @@
 
 El proyecto no utiliza frameworks pesados con el fin de demostrar un dominio profundo de las **Web APIs nativas**, manipulación eficiente del DOM y patrones arquitectónicos:
 
-```
+```text
 proyecto-clima/
 ├── js/
 │   ├── models/
-│   │   └── Weather.js         # Entidad inmutable de dominio y normalización
+│   │   ├── Weather.js         # Entidad inmutable del clima actual y validación
+│   │   └── Forecast.js        # Entidad de pronóstico (puntos horarios y diarios)
 │   ├── services/
-│   │   ├── WeatherService.js  # Peticiones HTTP, timeouts y geolocalización
+│   │   ├── WeatherService.js  # Peticiones HTTP paralelas, timeouts y endpoints
 │   │   ├── StorageService.js  # Abstracción de persistencia con fallback
 │   │   └── IconService.js     # Resolución de assets, temas y accesibilidad
 │   ├── ui/
 │   │   ├── SearchInput.js     # Componente del formulario y atajos de teclado
-│   │   ├── WeatherCard.js     # Renderizado y actualización visual de la tarjeta
+│   │   ├── WeatherCard.js     # Renderizado y telemetría de la tarjeta principal
+│   │   ├── ThermalChart.js    # Motor gráfico de curva térmica en Canvas 2D
+│   │   ├── ForecastView.js    # Cuadrícula telemétrica de predicción a 5 días
 │   │   └── UIController.js    # Controlador mediador (GRASP Controller)
 │   ├── app.js                 # Composición de dependencias (DIP)
 │   ├── config.js              # Configuración y constantes centralizadas
 │   └── main.js                # Punto de entrada de la aplicación
-├── styles.css                 # Sistema de diseño con CSS Variables y Glassmorphism
-├── index.html                 # Estructura semántica HTML5
-├── package.json               # Dependencias y scripts de desarrollo
+├── styles.css                 # Sistema de diseño futurista HUD con CSS Variables
+├── index.html                 # Estructura semántica HTML5 con layout táctico
+├── package.json               # Dependencias y scripts de desarrollo (Vite)
 └── vite.config.js             # Configuración del empaquetador
 ```
 
-### Principios aplicados:
+### Principios aplicados
+
 - **Single Responsibility Principle (SRP):** Cada clase tiene una única razón de cambio (`SearchInput` solo atiende el input, `WeatherCard` solo renderiza, `StorageService` solo persiste).
 - **Dependency Inversion Principle (DIP):** Inyección de dependencias en `UIController` y `WeatherApp` para facilitar el testing y desacoplar componentes.
 - **Inmutabilidad:** La entidad `Weather` sella sus propiedades con `Object.freeze()` evitando mutaciones accidentales en tiempo de ejecución.
@@ -133,33 +139,40 @@ sequenceDiagram
 
 ## 🚀 Instalación y Puesta en Marcha
 
-### Prerrequisitos:
+### Prerrequisitos
+
 - [Node.js](https://nodejs.org/) (versión 18 o superior)
 - Clave de API gratuita de [OpenWeatherMap](https://openweathermap.org/api)
 
-### 1. Clonar el repositorio:
+### 1. Clonar el repositorio
+
 ```bash
 git clone https://github.com/tu-usuario/proyecto-clima.git
 cd proyecto-clima
 ```
 
-### 2. Instalar dependencias:
+### 2. Instalar dependencias
+
 ```bash
 npm install
 ```
 
-### 3. Configurar variables de entorno:
+### 3. Configurar variables de entorno
+
 Crea un archivo `.env` en la raíz del proyecto (puedes guiarte con `.env.example`):
+
 ```env
 VITE_API_KEY=tu_api_key_de_openweathermap
 ```
 
-### 4. Iniciar en modo desarrollo:
+### 4. Iniciar en modo desarrollo
+
 ```bash
 npm run dev
 ```
 
-### 5. Compilar para producción:
+### 5. Compilar para producción
+
 ```bash
 npm run build
 npm run preview

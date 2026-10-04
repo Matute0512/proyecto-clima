@@ -1,6 +1,8 @@
 import CONFIG from '../config.js';
 import WeatherCard from './WeatherCard.js';
 import SearchInput from './SearchInput.js';
+import ThermalChart from './ThermalChart.js';
+import ForecastView from './ForecastView.js';
 import StorageService from '../services/StorageService.js';
 
 /**
@@ -8,7 +10,7 @@ import StorageService from '../services/StorageService.js';
  *
  * Responsabilidad:
  * - Coordinar el flujo completo de la interfaz de usuario
- * - Integrar SearchInput, WeatherCard y StorageService
+ * - Integrar SearchInput, WeatherCard, ThermalChart, ForecastView y StorageService
  * - Gestionar geolocalización nativa, historial reciente y conversor de unidades
  *
  * Principios:
@@ -20,11 +22,15 @@ class UIController {
   constructor(weatherService, storageService = new StorageService()) {
     this.weatherService = weatherService;
     this.storageService = storageService;
-    this.weatherCard = new WeatherCard();
 
     this.elements = this.initializeElements();
     this.currentWeather = null;
+    this.currentForecast = null;
     this.currentUnit = this.storageService.getPreferredUnit() || 'metric';
+
+    this.weatherCard = new WeatherCard();
+    this.thermalChart = new ThermalChart(this.elements.thermalChart);
+    this.forecastView = new ForecastView(this.elements.forecastContainer);
 
     this.searchInput = new SearchInput({
       formElement: this.elements.form,
@@ -49,6 +55,9 @@ class UIController {
       geoBtn: document.querySelector('#geoBtn'),
       unitToggle: document.querySelector('#unitToggle'),
       recentSearches: document.querySelector('#recentSearches'),
+      thermalChart: document.querySelector('#thermalChart'),
+      forecastContainer: document.querySelector('#forecastContainer'),
+      forecastSection: document.querySelector('#forecastSection'),
     };
   }
 
@@ -113,7 +122,7 @@ class UIController {
   }
 
   /**
-   * Consulta el clima y actualiza la tarjeta y el almacenamiento
+   * Consulta el clima actual y el pronóstico extendido en paralelo
    * @param {string} city 
    */
   async fetchAndDisplayWeather(city) {
@@ -121,10 +130,29 @@ class UIController {
       this.setLoading(true);
       this.clearError();
 
-      const weather = await this.weatherService.getWeatherByCity(city);
-      this.currentWeather = weather;
+      const [weather, forecast] = await Promise.all([
+        this.weatherService.getWeatherByCity(city),
+        this.weatherService.getForecastByCity(city).catch(err => {
+          console.warn('⚠️ No se pudo obtener el pronóstico extendido:', err);
+          return null;
+        }),
+      ]);
 
+      this.currentWeather = weather;
+      this.currentForecast = forecast;
+
+      // Renderiza tarjeta principal
       this.weatherCard.render(weather, this.currentUnit);
+
+      // Renderiza telemetría horaria y pronóstico a 5 días
+      if (forecast) {
+        if (this.elements.forecastSection) {
+          this.elements.forecastSection.classList.remove('hidden');
+        }
+        this.thermalChart.render(forecast.hourly, this.currentUnit);
+        this.forecastView.render(forecast.daily, this.currentUnit);
+      }
+
       this.storageService.saveLastCity(weather.city);
       this.renderRecentSearches();
 
@@ -141,7 +169,7 @@ class UIController {
   }
 
   /**
-   * Consulta el clima a partir de coordenadas de geolocalización
+   * Consulta el clima y pronóstico a partir de coordenadas GPS
    */
   handleGeolocation() {
     if (!navigator.geolocation) {
@@ -161,10 +189,28 @@ class UIController {
         try {
           this.setLoading(true);
           const { latitude, longitude } = position.coords;
-          const weather = await this.weatherService.getWeatherByCoords(latitude, longitude);
+
+          const [weather, forecast] = await Promise.all([
+            this.weatherService.getWeatherByCoords(latitude, longitude),
+            this.weatherService.getForecastByCoords(latitude, longitude).catch(err => {
+              console.warn('⚠️ No se pudo obtener pronóstico por coordenadas:', err);
+              return null;
+            }),
+          ]);
 
           this.currentWeather = weather;
+          this.currentForecast = forecast;
+
           this.weatherCard.render(weather, this.currentUnit);
+
+          if (forecast) {
+            if (this.elements.forecastSection) {
+              this.elements.forecastSection.classList.remove('hidden');
+            }
+            this.thermalChart.render(forecast.hourly, this.currentUnit);
+            this.forecastView.render(forecast.daily, this.currentUnit);
+          }
+
           this.storageService.saveLastCity(weather.city);
           this.renderRecentSearches();
 
@@ -194,7 +240,7 @@ class UIController {
   }
 
   /**
-   * Alterna entre Celsius (°C) y Fahrenheit (°F) al instante
+   * Alterna entre Celsius (°C) y Fahrenheit (°F) reactivamente
    */
   handleUnitToggle() {
     this.currentUnit = this.currentUnit === 'metric' ? 'imperial' : 'metric';
@@ -203,6 +249,11 @@ class UIController {
 
     if (this.currentWeather) {
       this.weatherCard.render(this.currentWeather, this.currentUnit);
+    }
+
+    if (this.currentForecast) {
+      this.thermalChart.render(this.currentForecast.hourly, this.currentUnit);
+      this.forecastView.render(this.currentForecast.daily, this.currentUnit);
     }
   }
 

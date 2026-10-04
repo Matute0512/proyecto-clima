@@ -152,6 +152,29 @@
                 </div>
             </article>
         </section>
+
+        <!-- SECCIÓN DE PRONÓSTICO EXTENDIDO Y TRAYECTORIA TÉRMICA -->
+        <section class="forecast-section" id="forecastSection">
+            <!-- GRÁFICA TÉRMICA 24 HORAS -->
+            <div class="forecast-block cyber-panel">
+                <div class="block-header">
+                    <span class="block-tag">📈 TELEMETRÍA DINÁMICA</span>
+                    <h3 class="block-title">TRAYECTORIA TÉRMICA // PRÓXIMAS 24 HORAS</h3>
+                </div>
+                <div class="canvas-container">
+                    <canvas id="thermalChart" class="thermal-canvas"></canvas>
+                </div>
+            </div>
+
+            <!-- PRONÓSTICO EXTENDIDO 5 DÍAS -->
+            <div class="forecast-block cyber-panel">
+                <div class="block-header">
+                    <span class="block-tag">🗓️ PREDICCIÓN ORBITAL</span>
+                    <h3 class="block-title">PRONÓSTICO EXTENDIDO // PRÓXIMOS 5 DÍAS</h3>
+                </div>
+                <div id="forecastContainer" class="forecast-container"></div>
+            </div>
+        </section>
     </main>
 
     <!-- PIE DE PÁGINA HUD -->
