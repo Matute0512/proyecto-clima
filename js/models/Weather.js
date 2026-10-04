@@ -18,6 +18,7 @@ export class Weather {
     description,
     iconCode,
     conditionMain = '',
+    coord = null,
     timestamp = Date.now(),
   }) {
     if (!city || typeof city !== 'string') {
@@ -37,6 +38,7 @@ export class Weather {
     this.description = (description || 'Sin descripción').trim();
     this.iconCode = iconCode || '01d';
     this.conditionMain = conditionMain;
+    this.coord = coord && typeof coord.lat === 'number' ? { lat: coord.lat, lon: coord.lon } : null;
     this.timestamp = timestamp;
 
     Object.freeze(this);
@@ -103,6 +105,19 @@ export class Weather {
   }
 
   /**
+   * Coordenadas geográficas formateadas tipo HUD
+   * @returns {string}
+   */
+  get formattedCoords() {
+    if (!this.coord || typeof this.coord.lat !== 'number' || typeof this.coord.lon !== 'number') {
+      return 'COORD: ORBITAL TELEMETRY LINK';
+    }
+    const latDir = this.coord.lat >= 0 ? 'N' : 'S';
+    const lonDir = this.coord.lon >= 0 ? 'E' : 'W';
+    return `COORD: ${Math.abs(this.coord.lat).toFixed(2)}° ${latDir}, ${Math.abs(this.coord.lon).toFixed(2)}° ${lonDir}`;
+  }
+
+  /**
    * Factory method para construir la entidad inmutable a partir de la API de OpenWeatherMap
    * @param {Object} rawData - Respuesta cruda en formato JSON
    * @returns {Weather}
@@ -123,6 +138,7 @@ export class Weather {
       description: rawData.weather[0].description,
       iconCode: rawData.weather[0].icon,
       conditionMain: rawData.weather[0].main,
+      coord: rawData.coord || null,
       timestamp: rawData.dt ? rawData.dt * 1000 : Date.now(),
     });
   }

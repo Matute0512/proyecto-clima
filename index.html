@@ -3,90 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Aplicación del clima dinámica con búsqueda por ciudad">
-    <title>Aplicación del Clima Dinámica</title>
+    <meta name="description" content="Terminal Meteorológica Orbital - Telemetría y monitoreo climático global en tiempo real">
+    <title>METEOR-PULSE // Estación Meteorológica Orbital</title>
+    <!-- TIPOGRAFÍAS FUTURISTAS SCI-FI HUD -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Rajdhani:wght@500;600;700&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-    <!-- ENCABEZADO PRINCIPAL -->
-     <header class="header">
-        <h1>🌍 Mi Aplicación del Clima</h1>
-        <p class="subtitle">Conoce el clima en cualquier ciudad del mundo</p>
-     </header>
+<body class="cyber-theme">
+    <!-- FONDO DE REJILLA Y RADAR ATMOSFÉRICO -->
+    <div class="cyber-grid" aria-hidden="true"></div>
+    <div class="ambient-glow" aria-hidden="true"></div>
+    <div class="scanlines" aria-hidden="true"></div>
 
-     <!--  CONTENIDO PRINCIPAL -->
-      <main class="container">
+    <!-- ENCABEZADO HUD ORBITAL -->
+    <header class="hud-header">
+        <div class="hud-top-bar">
+            <span class="hud-tag"><span class="pulse-beacon"></span>SYS: ONLINE</span>
+            <span class="hud-tag hud-mid">SATELLITE ATMOS-LINK // FREQ: 142.08 MHz</span>
+            <span class="hud-tag hud-time" id="hudClock">00:00:00 UTC</span>
+        </div>
+        <h1 class="hud-title">METEOR<span class="neon-accent">PULSE</span></h1>
+        <p class="hud-subtitle">ESTACIÓN DE TELEMETRÍA METEOROLÓGICA GLOBAL // TIEMPO REAL</p>
+    </header>
 
-        <!-- SECCIÓN DE BÚSQUEDA -->
-         <section class="search-section">
-            <form id="weatherForm" class="search-form">
-                <input
-                    type="text"
-                    id="cityInput"
-                    class="city-input"
-                    placeholder="Escribe una ciudad (o presiona '/' para buscar)..."
-                    aria-label="Buscar ciudad"
-                    required
-                >
-                <button type="button" id="geoBtn" class="geo-btn" title="Usar mi ubicación actual" aria-label="Usar mi ubicación actual">
-                    📍
-                </button>
-                <button type="submit" class="search-btn">
-                    🔍 Buscar
-                </button>
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="container">
+        <!-- SECCIÓN DE BÚSQUEDA CYBER -->
+        <section class="search-section">
+            <form id="weatherForm" class="search-form cyber-card">
+                <div class="input-wrapper">
+                    <span class="input-icon">📡</span>
+                    <input
+                        type="text"
+                        id="cityInput"
+                        class="city-input"
+                        placeholder="INGRESAR CIUDAD O SECTOR... [/]"
+                        aria-label="Buscar ciudad u objetivo meteorológico"
+                        autocomplete="off"
+                        required
+                    >
+                    <span class="kbd-pill" title="Atajo de teclado">/</span>
+                </div>
+                <div class="form-actions">
+                    <button type="button" id="geoBtn" class="geo-btn cyber-btn-icon" title="Sincronizar mi posición geográfica (GPS)" aria-label="Sincronizar coordenadas GPS">
+                        <span class="radar-ping"></span>
+                        <span class="icon">⌖</span>
+                    </button>
+                    <button type="submit" class="search-btn cyber-btn">
+                        <span class="btn-text">ESCANEAR</span>
+                        <span class="btn-flare"></span>
+                    </button>
+                </div>
             </form>
-            <div id="recentSearches" class="recent-searches" aria-label="Búsquedas recientes"></div>
-            <!-- Este mensaje aparecerá si hay un error -->
-            <div id="errorMessage" class="error-message hidden" role="alert"></div>
-         </section>
 
-         <!-- SECCIÓN DEL CLIMA (la tarjeta) -->
-         <section class="weather-section" id="weatherSection">
-            <article class="weather-card" id="weatherCard">
-                <div class="unit-toggle-container">
-                    <button type="button" id="unitToggle" class="unit-toggle" aria-label="Cambiar entre Celsius y Fahrenheit">
-                        Cambiar a °F
+            <!-- HISTORIAL DE BÚSQUEDAS RECIENTES (CHIPS DATA-CAPSULE) -->
+            <div id="recentSearches" class="recent-searches" aria-label="Búsquedas recientes"></div>
+
+            <!-- MENSAJES DE ESTADO / ERROR -->
+            <div id="errorMessage" class="error-message hidden" role="alert"></div>
+        </section>
+
+        <!-- SECCIÓN DEL CLIMA (HUD WEATHER STATION) -->
+        <section class="weather-section" id="weatherSection">
+            <article class="weather-card cyber-panel" id="weatherCard">
+                <!-- HAZ DE LUZ DEL ESCÁNER -->
+                <div class="cyber-scanner" aria-hidden="true"></div>
+
+                <!-- ESQUINAS DECORATIVAS TIPO HUD -->
+                <div class="corner-bracket corner-tl" aria-hidden="true"></div>
+                <div class="corner-bracket corner-tr" aria-hidden="true"></div>
+                <div class="corner-bracket corner-bl" aria-hidden="true"></div>
+                <div class="corner-bracket corner-br" aria-hidden="true"></div>
+
+                <!-- BARRA SUPERIOR DE TELEMETRÍA -->
+                <div class="card-hud-bar">
+                    <div class="telemetry-badge">
+                        <span class="telemetry-icon">◈</span>
+                        <span class="telemetry-label" id="geoCoordinates">COORD: ORBITAL TELEMETRY LINK</span>
+                    </div>
+                    <button type="button" id="unitToggle" class="unit-toggle cyber-pill" aria-label="Cambiar escala termométrica">
+                        ESCALA: [ °C ] ➔ °F
                     </button>
                 </div>
 
-                <!-- Aquí se mostrarán los datos del clima (lo rellenamos con JavaScript) -->
+                <!-- ENCABEZADO CIUDAD Y CONDICIÓN -->
                 <div class="weather-header">
-                    <h2 id="cityName">Busca una ciudad...</h2>
-                    <p id="weatherDescription">Ingresa una ciudad para ver el clima</p>
+                    <div class="target-flag">OBJETIVO MONITORIZADO</div>
+                    <h2 id="cityName">BUSCANDO SEÑAL...</h2>
+                    <div class="condition-badge">
+                        <span class="condition-dot"></span>
+                        <p id="weatherDescription">INICIE ESCANEO DE CIUDAD O COORDENADAS</p>
+                    </div>
                 </div>
 
+                <!-- SECCIÓN CENTRAL DE TEMPERATURA Y SENSOR -->
                 <div class="weather-main">
                     <div class="temperature-section">
-                        <img id="weatherIcon" class="weather-icon" src="" alt="Icono del clima" style="display: none;">
-                        <span id="temperature" class="temperature">--°C</span>
+                        <div class="icon-halo-wrapper">
+                            <div class="icon-radar-ring" aria-hidden="true"></div>
+                            <img id="weatherIcon" class="weather-icon" src="" alt="Icono atmosférico" style="display: none;">
+                        </div>
+                        <div class="temperature-data">
+                            <span id="temperature" class="temperature">--°C</span>
+                            <span class="feels-like" id="feelsLike">SENSACIÓN: --°C</span>
+                        </div>
                     </div>
                 </div>
 
+                <!-- GRID DE TELEMETRÍA DETALLADA -->
                 <div class="weather-details">
-                    <div class="detail">
-                        <span class="detail-label">💨 Viento</span>
+                    <!-- VIENTO -->
+                    <div class="detail cyber-detail-box">
+                        <div class="detail-header">
+                            <span class="detail-icon">💨</span>
+                            <span class="detail-label">VIENTO // VECTOR</span>
+                        </div>
                         <span id="windSpeed" class="detail-value">-- km/h</span>
+                        <div class="meter-bar-wrapper">
+                            <div class="meter-bar" id="windBar" style="width: 0%;"></div>
+                        </div>
                     </div>
-                    <div class="detail">
-                        <span class="detail-label">💧 Humedad</span>
+
+                    <!-- HUMEDAD -->
+                    <div class="detail cyber-detail-box">
+                        <div class="detail-header">
+                            <span class="detail-icon">💧</span>
+                            <span class="detail-label">HUMEDAD // VAPOR</span>
+                        </div>
                         <span id="humidity" class="detail-value">-- %</span>
+                        <div class="meter-bar-wrapper">
+                            <div class="meter-bar" id="humidityBar" style="width: 0%;"></div>
+                        </div>
                     </div>
-                    <div class="detail">
-                        <span class="detail-label">🔽 Presión</span>
+
+                    <!-- PRESIÓN -->
+                    <div class="detail cyber-detail-box">
+                        <div class="detail-header">
+                            <span class="detail-icon">🔽</span>
+                            <span class="detail-label">PRESIÓN // BARO</span>
+                        </div>
                         <span id="pressure" class="detail-value">-- hPa</span>
+                        <div class="meter-bar-wrapper">
+                            <div class="meter-bar" id="pressureBar" style="width: 0%;"></div>
+                        </div>
                     </div>
                 </div>
             </article>
-         </section>
+        </section>
+    </main>
 
-      </main>
+    <!-- PIE DE PÁGINA HUD -->
+    <footer class="footer">
+        <p>TERMINAL METEOROLÓGICA ORBITAL // POWERED BY <strong>OPENWEATHERMAP SATELLITE API</strong> // V1.0</p>
+    </footer>
 
-      <!-- PIE DE PÁGINA -->
-       <footer class="footer">
-        <p>Datos proporcionados por <strong>OpenWeatherMap</strong> | Creado el fin de semana 🚀</p>
-       </footer>
-
-       <!-- VINCULAMOS NUESTRO JAVASCRIPT (lo creamos en la fase 4) -->
-        <script type="module" src="js/main.js"></script>
+    <script type="module" src="js/main.js"></script>
 </body>
 </html>

@@ -66,9 +66,10 @@ class UIController {
   }
 
   /**
-   * Prepara el estado inicial: unidad preferida, historial y última ciudad consultada
+   * Prepara el estado inicial: unidad preferida, historial, reloj HUD y última ciudad consultada
    */
   setupInitialState() {
+    this.startHudClock();
     this.updateUnitToggleButton();
     this.renderRecentSearches();
 
@@ -76,6 +77,25 @@ class UIController {
     if (lastCity) {
       this.fetchAndDisplayWeather(lastCity);
     }
+  }
+
+  /**
+   * Inicia el reloj digital de telemetría en tiempo real
+   */
+  startHudClock() {
+    const clockEl = document.querySelector('#hudClock');
+    if (!clockEl) return;
+
+    const updateClock = () => {
+      const now = new Date();
+      const hours = String(now.getUTCHours()).padStart(2, '0');
+      const minutes = String(now.getUTCMinutes()).padStart(2, '0');
+      const seconds = String(now.getUTCSeconds()).padStart(2, '0');
+      clockEl.textContent = `${hours}:${minutes}:${seconds} UTC`;
+    };
+
+    updateClock();
+    setInterval(updateClock, 1000);
   }
 
   /**
@@ -192,7 +212,7 @@ class UIController {
   updateUnitToggleButton() {
     if (!this.elements.unitToggle) return;
     this.elements.unitToggle.textContent = 
-      this.currentUnit === 'metric' ? 'Cambiar a °F' : 'Cambiar a °C';
+      this.currentUnit === 'metric' ? 'ESCALA: [ °C ] ➔ °F' : 'ESCALA: [ °F ] ➔ °C';
   }
 
   /**
