@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Aplicación del clima dinámica con búsqueda por ciudad">
+    <title>Aplicación del Clima Dinámica</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- ENCABEZADO PRINCIPAL -->
+     <header class="header">
+        <h1>🌍 Mi Aplicación del Clima</h1>
+        <p class="subtitle">Conoce el clima en cualquier ciudad del mundo</p>
+     </header>
+
+     <!--  CONTENIDO PRINCIPAL -->
+      <main class="container">
+
+        <!-- SECCIÓN DE BÚSQUEDA -->
+         <section class="search-section">
+            <form id="weatherForm" class="search-form">
+                <input
+                    type="text"
+                    id="cityInput"
+                    class="city-input"
+                    placeholder="Escribe una ciudad (o presiona '/' para buscar)..."
+                    aria-label="Buscar ciudad"
+                    required
+                >
+                <button type="button" id="geoBtn" class="geo-btn" title="Usar mi ubicación actual" aria-label="Usar mi ubicación actual">
+                    📍
+                </button>
+                <button type="submit" class="search-btn">
+                    🔍 Buscar
+                </button>
+            </form>
+            <div id="recentSearches" class="recent-searches" aria-label="Búsquedas recientes"></div>
+            <!-- Este mensaje aparecerá si hay un error -->
+            <div id="errorMessage" class="error-message hidden" role="alert"></div>
+         </section>
+
+         <!-- SECCIÓN DEL CLIMA (la tarjeta) -->
+         <section class="weather-section" id="weatherSection">
+            <article class="weather-card" id="weatherCard">
+                <div class="unit-toggle-container">
+                    <button type="button" id="unitToggle" class="unit-toggle" aria-label="Cambiar entre Celsius y Fahrenheit">
+                        Cambiar a °F
+                    </button>
+                </div>
+
+                <!-- Aquí se mostrarán los datos del clima (lo rellenamos con JavaScript) -->
+                <div class="weather-header">
+                    <h2 id="cityName">Busca una ciudad...</h2>
+                    <p id="weatherDescription">Ingresa una ciudad para ver el clima</p>
+                </div>
+
+                <div class="weather-main">
+                    <div class="temperature-section">
+                        <img id="weatherIcon" class="weather-icon" src="" alt="Icono del clima" style="display: none;">
+                        <span id="temperature" class="temperature">--°C</span>
+                    </div>
+                </div>
+
+                <div class="weather-details">
+                    <div class="detail">
+                        <span class="detail-label">💨 Viento</span>
+                        <span id="windSpeed" class="detail-value">-- km/h</span>
+                    </div>
+                    <div class="detail">
+                        <span class="detail-label">💧 Humedad</span>
+                        <span id="humidity" class="detail-value">-- %</span>
+                    </div>
+                    <div class="detail">
+                        <span class="detail-label">🔽 Presión</span>
+                        <span id="pressure" class="detail-value">-- hPa</span>
+                    </div>
+                </div>
+            </article>
+         </section>
+
+      </main>
+
+      <!-- PIE DE PÁGINA -->
+       <footer class="footer">
+        <p>Datos proporcionados por <strong>OpenWeatherMap</strong> | Creado el fin de semana 🚀</p>
+       </footer>
+
+       <!-- VINCULAMOS NUESTRO JAVASCRIPT (lo creamos en la fase 4) -->
+        <script type="module" src="js/main.js"></script>
+</body>
+</html>

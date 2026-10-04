@@ -1,0 +1,15 @@
+{
+  "name": "proyecto-clima",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Aplicación del clima dinámica desarrollada con Vanilla JavaScript modular y Vite",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^6.0.0"
+  }
+}
