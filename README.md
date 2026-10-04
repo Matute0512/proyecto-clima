@@ -56,6 +56,81 @@ proyecto-clima/
 
 ---
 
+## 🔄 Diagramas del Sistema
+
+### 1. Diagrama de Flujo (Ciclo de Vida de una Búsqueda)
+
+```mermaid
+flowchart TD
+    Start(["Inicio: Usuario interactúa con la app"]) --> InputChoice{"Tipo de acción"}
+
+    InputChoice -->|"Búsqueda por texto"| CheckInput{"¿Texto válido?"}
+    InputChoice -->|"Clic en 📍 Geolocalización"| GeoReq["Solicitar permisos con navigator.geolocation"]
+    InputChoice -->|"Clic en Chip de Historial"| ChipQuery["Obtener nombre de la ciudad del chip"]
+
+    CheckInput -->|"No (vacío)"| ShowEmptyErr["Mostrar error: Ciudad requerida"]
+    CheckInput -->|"Sí"| TriggerSearch["Iniciar consulta climática"]
+
+    GeoReq -->|"Permiso denegado / Error"| ShowGeoErr["Mostrar error de permisos de ubicación"]
+    GeoReq -->|"Permiso concedido"| CoordsSearch["Consultar por latitud y longitud"]
+
+    ChipQuery --> TriggerSearch
+    CoordsSearch --> FetchWeather["WeatherService: fetch con AbortController Timeout"]
+    TriggerSearch --> FetchWeather
+
+    FetchWeather --> APIResult{"Respuesta de OpenWeatherMap"}
+
+    APIResult -->|"Timeout / Sin conexión"| NetErr["Error de red: Notificar al usuario"]
+    APIResult -->|"Código 404 (No existe)"| NotFoundErr["Error 404: Mostrar 'Ciudad no encontrada'"]
+    APIResult -->|"Código 200 (Éxito)"| ParseModel["Weather.fromApiResponse(json): Crear entidad inmutable"]
+
+    ParseModel --> SaveStorage["StorageService: Guardar última ciudad y actualizar historial"]
+    SaveStorage --> RenderUI["WeatherCard: Renderizar temperaturas, detalles e icono"]
+    RenderUI --> ThemeApply["IconService: Aplicar tema climático dinámico a la tarjeta"]
+    ThemeApply --> UpdateChips["UIController: Actualizar chips de búsquedas recientes"]
+    UpdateChips --> End(["Fin: UI interactiva actualizada"])
+```
+
+### 2. Diagrama de Secuencia (Interacción entre Capas y Servicios)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as Usuario
+    participant SI as SearchInput
+    participant UC as UIController
+    participant WS as WeatherService
+    participant API as OpenWeatherMap API
+    participant WM as Weather (Model)
+    participant SS as StorageService
+    participant WC as WeatherCard
+
+    User->>SI: Escribe ciudad y presiona "Buscar" o Enter
+    SI->>UC: onSearch("Madrid")
+    UC->>SI: setLoading(true)
+    UC->>WS: getWeatherByCity("Madrid")
+    WS->>WS: buildUrl("Madrid") con API Key
+    WS->>API: fetch(url, { signal: timeout })
+    alt Respuesta 200 OK
+        API-->>WS: 200 OK (JSON crudo)
+        WS->>WM: Weather.fromApiResponse(data)
+        WM-->>WS: Instancia inmutable Weather
+        WS-->>UC: Retorna objeto Weather
+        UC->>WC: render(weather, currentUnit)
+        WC->>WC: Actualiza DOM (temp, viento, humedad, tema visual)
+        UC->>SS: saveLastCity("Madrid")
+        SS->>SS: Actualiza localStorage con nuevo historial
+        UC->>UC: renderRecentSearches()
+    else Error 404 / Red
+        API-->>WS: 404 Not Found / Network Failure
+        WS-->>UC: Lanza excepción con mensaje de error
+        UC->>UC: showError(mensaje)
+    end
+    UC->>SI: setLoading(false)
+```
+
+---
+
 ## 🚀 Instalación y Puesta en Marcha
 
 ### Prerrequisitos:
