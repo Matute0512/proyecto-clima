@@ -9,7 +9,9 @@ const CONFIG = {
     // API
     API_BASE_URL: 'https://api.openweathermap.org/data/2.5/weather',
     API_FORECAST_URL: 'https://api.openweathermap.org/data/2.5/forecast',
-    API_KEY: import.meta.env?.VITE_API_KEY || 'REDACTED_OPENWEATHER_API_KEY',
+    // La API key se inyecta exclusivamente por variable de entorno (VITE_API_KEY).
+    // Nunca hardcodearla aca: el bundle de dist/ es publico.
+    API_KEY: import.meta.env?.VITE_API_KEY,
 
     // Unidades
     UNITS: 'metric',
